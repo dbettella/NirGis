@@ -76,45 +76,49 @@ class areadilavoro:
 
     # run method that performs all the real work
     def run(self):
+        # Controllo se è stato salvato un progetto per avere disposizione la cartella di destinazione dei files
         if len(QgsProject.instance().fileName()) == 0:
            QMessageBox.warning(self.iface.mainWindow(), "Informazioni","Prima di definire l'area di lavoro apri un progetto\n oppure salva un nuovo progetto\n in una cartella di lavoro.", QMessageBox.Ok, QMessageBox.Ok)
            return
-        listL = self.iface.mapCanvas().layers()  
-        isSitiLayer = False
-        for j in listL :
-            if isSitiLayer:
-               break
-            if j.name() == "Siti" :
-               isSitiLayer = True
-               if j.selectedFeatureCount() > 0 :
-                  self.dlg.show()
-                  result = self.dlg.exec_()
-                  if result != 1:
-                     return
-                  srtDistanza = self.dlg.editDim.text()
-                  try:
-                     distanza = float(srtDistanza)
-                  except ValueError:
-                      QMessageBox.warning(self.iface.mainWindow(), "Errore","Errore nel numero inserito", QMessageBox.Ok, QMessageBox.Ok)
-                      return
-                  fecSelList = j.selectedFeatures()                    
-                  geom = fecSelList[0].geometry()
-                  punto = geom.asPoint()
-                  px = punto.x()
-                  py = punto.y()
-                  self.def_area(px,py,distanza)
-               else:
-                  QMessageBox.warning(self.iface.mainWindow(), "Informazioni","Per definire l'area di lavoro selezionare\n un sito nel layer Siti", QMessageBox.Ok, QMessageBox.Ok)
+
+        # Controllo se è presente il layer Siti
+        listLaySiti = QgsMapLayerRegistry.instance().mapLayersByName("Siti")
+        if len(listLaySiti) > 0 :
+           laySiti = listLaySiti[0]
+           # Controllo se è stato selezionato un sito nel Layer siti
+           if laySiti.selectedFeatureCount() > 0 :
+              # Richiesta con finestradi dialogo della dimensione dell'area di lavoro
+              self.dlg.show()
+              result = self.dlg.exec_()
+              if result != 1:
+                 return
+              srtDistanza = self.dlg.editDim.text()
+              try:
+                 distanza = float(srtDistanza)
+              except ValueError:
+                  QMessageBox.warning(self.iface.mainWindow(), "Errore","Errore nel numero inserito", QMessageBox.Ok, QMessageBox.Ok)
                   return
-        if not isSitiLayer:
+              # uso del primo sito selezionato per definire l'area di lavoro
+              fecSelList = laySiti.selectedFeatures()                    
+              geom = fecSelList[0].geometry()
+              punto = geom.asPoint()
+              px = punto.x()
+              py = punto.y()
+              self.def_area(px,py,distanza)
+           else :
+              QMessageBox.warning(self.iface.mainWindow(), "Informazioni","Per definire l'area di lavoro selezionare\n un sito nel layer Siti", QMessageBox.Ok, QMessageBox.Ok)
+        else :
            QMessageBox.warning(self.iface.mainWindow(), "Informazioni","Per definire l'area di lavoro deve\n essere presente il layer Siti\n con un sito selezionato", QMessageBox.Ok, QMessageBox.Ok)
     def def_area(self,x,y,dist):
+        # Funzione per definire l'area di lavoro partendo dalle coordinate centrali e dalla dimensione (dist*2)
+
+        # Se esistono dei layer "Area di lavoro" vengono rimossi dalla legenda
         listL = self.iface.mapCanvas().layers()  
         for j in listL :
             if j.name() == "Area di lavoro" :
                QgsMapLayerRegistry.instance().removeMapLayer(j.id())
                del j
-
+        # Istanza di un layer 
         vl = QgsVectorLayer("polygon?crs=epsg:3003", "Area di lavoro", "memory")
         pr = vl.dataProvider()
         fet = QgsFeature()
@@ -122,6 +126,7 @@ class areadilavoro:
         QgsPoint(x+dist,y+dist),QgsPoint(x+dist,y-dist) ] ] ))
         pr.addFeatures( [ fet ] )
         vl.commitChanges()
+
         nomeDir = os.path.dirname(QgsProject.instance().fileName())
         nomeFileArea = os.path.join(nomeDir,"areadilavoro.shp")
         theCoor= QgsCoordinateReferenceSystem(3003,QgsCoordinateReferenceSystem.EpsgCrsId)
@@ -135,6 +140,7 @@ class areadilavoro:
         del vl
         self.getDTM()
     def getDTM(self):
+    # Funzione per estrarre il la parte del DTM all'interno dell'area di lavoro
            listLayArea = QgsMapLayerRegistry.instance().mapLayersByName("Area di lavoro")
            if len(listLayArea) > 0 :
               layArea = listLayArea[0]            
@@ -157,8 +163,6 @@ class areadilavoro:
                  if k.y() > ymax:
                     ymax = k.y()
 
-              fileNomeSez = "/home/ben/Scrivania/out.asc"
-              fileDTM = "/home/ben/Scrivania/DTM_BL.tiff"
 
               #Apertura del file raster originale e lettura dei suoi parametri
               inDTM = gdal.Open(self.fileGlobDTM)
