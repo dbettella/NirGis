@@ -52,6 +52,7 @@ class configurazione:
         # Create the dialog (after translation) and keep reference
         (dirPlugins,plugDir) = os.path.split(self.plugin_dir)
         self.cfg = config(dirPlugins)
+        self.updateGlobalVariable()
         self.dlg = configurazioneDialog()
         self.dlg.terstBtn.clicked.connect(self.test_connetti_db)
     def initGui(self):
@@ -81,6 +82,7 @@ class configurazione:
         # See if OK was pressed
         if result == 1:
            self.scriviOpzioni()
+           self.updateGlobalVariable()
     def leggiOpzioni(self):
       self.dlg.DB_ADDR.setText(self.cfg.cercaOpzione("DB_ADDR"))
       self.dlg.DB_NAME.setText(self.cfg.cercaOpzione("DB_NAME"))
@@ -92,6 +94,12 @@ class configurazione:
        self.cfg.impostaOpzione("DB_USERNAME",self.dlg.DB_USERNAME.text())
        self.cfg.impostaOpzione("DB_PASSWORD",self.dlg.DB_PASSWORD.text())
        self.cfg.salvaFileOpzioni()
+    def updateGlobalVariable(self):
+         setting = QSettings()
+         setting.setValue("configurazione/DB_ADDR", self.cfg.cercaOpzione("DB_ADDR"))
+         setting.setValue("configurazione/DB_NAME", self.cfg.cercaOpzione("DB_NAME"))
+         setting.setValue("configurazione/DB_USERNAME", self.cfg.cercaOpzione("DB_USERNAME"))
+         setting.setValue("configurazione/DB_PASSWORD", self.cfg.cercaOpzione("DB_PASSWORD"))
     def test_connetti_db(self):
         try:
            comd = "host="+self.dlg.DB_ADDR.text()+" dbname="+self.dlg.DB_NAME.text()+" user="+self.dlg.DB_USERNAME.text()
