@@ -55,6 +55,8 @@ class configurazione:
         self.updateGlobalVariable()
         self.dlg = configurazioneDialog()
         self.dlg.terstBtn.clicked.connect(self.test_connetti_db)
+        self.dlg.fileButton.clicked.connect(self.select_DTM_file)
+
     def initGui(self):
         # Create action that will start plugin configuration
         self.action = QAction(
@@ -65,11 +67,11 @@ class configurazione:
 
         # Add toolbar button and menu item
         self.iface.addToolBarIcon(self.action)
-        self.iface.addPluginToMenu(u"&configurazione", self.action)
+        self.iface.addPluginToMenu(u"&NirGis", self.action)
 
     def unload(self):
         # Remove the plugin menu item and icon
-        self.iface.removePluginMenu(u"&configurazione", self.action)
+        self.iface.removePluginMenu(u"&NirGis", self.action)
         self.iface.removeToolBarIcon(self.action)
 
     # run method that performs all the real work
@@ -88,18 +90,24 @@ class configurazione:
       self.dlg.DB_NAME.setText(self.cfg.cercaOpzione("DB_NAME"))
       self.dlg.DB_USERNAME.setText(self.cfg.cercaOpzione("DB_USERNAME"))
       self.dlg.DB_PASSWORD.setText(self.cfg.cercaOpzione("DB_PASSWORD"))
+      self.dlg.FILE_DTM.setText(self.cfg.cercaOpzione("FILE_DTM"))
+
     def scriviOpzioni(self):
        self.cfg.impostaOpzione("DB_ADDR",self.dlg.DB_ADDR.text())
        self.cfg.impostaOpzione("DB_NAME",self.dlg.DB_NAME.text())
        self.cfg.impostaOpzione("DB_USERNAME",self.dlg.DB_USERNAME.text())
        self.cfg.impostaOpzione("DB_PASSWORD",self.dlg.DB_PASSWORD.text())
+       self.cfg.impostaOpzione("FILE_DTM",self.dlg.FILE_DTM.text())
        self.cfg.salvaFileOpzioni()
+
     def updateGlobalVariable(self):
          setting = QSettings()
          setting.setValue("configurazione/DB_ADDR", self.cfg.cercaOpzione("DB_ADDR"))
          setting.setValue("configurazione/DB_NAME", self.cfg.cercaOpzione("DB_NAME"))
          setting.setValue("configurazione/DB_USERNAME", self.cfg.cercaOpzione("DB_USERNAME"))
          setting.setValue("configurazione/DB_PASSWORD", self.cfg.cercaOpzione("DB_PASSWORD"))
+         setting.setValue("configurazione/FILE_DTM", self.cfg.cercaOpzione("FILE_DTM"))
+
     def test_connetti_db(self):
         try:
            comd = "host="+self.dlg.DB_ADDR.text()+" dbname="+self.dlg.DB_NAME.text()+" user="+self.dlg.DB_USERNAME.text()
@@ -111,5 +119,8 @@ class configurazione:
         connessione.close()
         QMessageBox.warning(self.dlg, "Connessione a Etere","Collegamento OK", QMessageBox.Ok, QMessageBox.Ok)
         return True
-
+    def select_DTM_file(self):
+       theFile = QFileDialog.getOpenFileName(self.dlg,"Open Image",os.environ['HOME'],"File Tiff o adr (*.tiff *.tif *.adr);;Tutti i file (*)")
+       if len(theFile) > 0 :
+          self.dlg.FILE_DTM.setText(theFile)
 

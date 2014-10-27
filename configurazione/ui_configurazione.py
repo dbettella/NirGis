@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_configurazione.ui'
 #
-# Created: Tue Oct 21 12:09:54 2014
+# Created: Mon Oct 27 09:58:53 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -40,6 +40,15 @@ class Ui_configurazione(object):
         self.tabWidget.addTab(self.tab_2, _fromUtf8(""))
         self.tab = QtGui.QWidget()
         self.tab.setObjectName(_fromUtf8("tab"))
+        self.FILE_DTM = QtGui.QLineEdit(self.tab)
+        self.FILE_DTM.setGeometry(QtCore.QRect(30, 200, 531, 27))
+        self.FILE_DTM.setObjectName(_fromUtf8("FILE_DTM"))
+        self.label_5 = QtGui.QLabel(self.tab)
+        self.label_5.setGeometry(QtCore.QRect(30, 180, 331, 17))
+        self.label_5.setObjectName(_fromUtf8("label_5"))
+        self.fileButton = QtGui.QPushButton(self.tab)
+        self.fileButton.setGeometry(QtCore.QRect(570, 200, 41, 27))
+        self.fileButton.setObjectName(_fromUtf8("fileButton"))
         self.tabWidget.addTab(self.tab, _fromUtf8(""))
         self.tab_3 = QtGui.QWidget()
         self.tab_3.setObjectName(_fromUtf8("tab_3"))
@@ -74,7 +83,7 @@ class Ui_configurazione(object):
         self.tabWidget.addTab(self.tab_3, _fromUtf8(""))
 
         self.retranslateUi(configurazione)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), configurazione.accept)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), configurazione.reject)
         QtCore.QMetaObject.connectSlotsByName(configurazione)
@@ -82,7 +91,9 @@ class Ui_configurazione(object):
     def retranslateUi(self, configurazione):
         configurazione.setWindowTitle(_translate("configurazione", "configurazione", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("configurazione", "Edifici", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("configurazione", "Sezioni", None))
+        self.label_5.setText(_translate("configurazione", "File DTM (Modello digitale del terreno utilizzato)", None))
+        self.fileButton.setText(_translate("configurazione", "...", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("configurazione", "Sezioni Orizzontali", None))
         self.label.setText(_translate("configurazione", "Indirizzo del database Etere", None))
         self.label_2.setText(_translate("configurazione", "Nome del database", None))
         self.label_3.setText(_translate("configurazione", "Nome Utente", None))

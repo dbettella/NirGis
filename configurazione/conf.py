@@ -1,5 +1,5 @@
 import os
-
+import datetime
 class config:
 
    def __init__(self,phFilePlugin):
@@ -40,6 +40,7 @@ class config:
       self.matriceOpzioni.append([nomeOpzione,valore])
       return False
    def salvaFileOpzioni(self):
+      os.rename(self.nomeFile,self.nomeFile+"_old_"+datetime.datetime.now().strftime("%d%m%Y_%H%M%S")+".txt")
       outFile = open(self.nomeFile,"w")
       for j in self.matriceOpzioni:
          riga = ""
