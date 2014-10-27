@@ -413,4 +413,3 @@ class CaricaSiti:
        self.DB_PASSWORD = setting.value("configurazione/DB_PASSWORD", "")
 
 
-
