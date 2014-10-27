@@ -61,6 +61,13 @@ class CaricaSiti:
         self.dlg.cb_prov.insertItems(0,[""])
         self.con = None
         
+        # Variabili globali
+        self.DB_ADDR = ""
+        self.DB_NAME = ""
+        self.DB_USERNAME = ""
+        self.DB_PASSWORD = ""
+        self.updateGlVariable()
+
 
     def initGui(self):
         # Create action that will start plugin configuration
@@ -82,6 +89,7 @@ class CaricaSiti:
 
     # run method that performs all the real work
     def run(self):
+        self.updateGlVariable()
         listL = self.iface.mapCanvas().layers()  # prende i layer
         isSitiLayer = False
         for j in listL :
@@ -143,27 +151,28 @@ class CaricaSiti:
         # See if OK was pressed
         if result == 1:
            self.newProgBar("Scarico dal Database Etere i siti...",0)
-           uri = QgsDataSourceURI()
-           # set host name, port, database name, username and password
-           uri.setConnection("arjuna.arpa.veneto.it", "5432", "etere", "etere", "etere2014")
-           # set database schema, table name, geometry column and optionaly subset (WHERE clause)
-           index_com = self.dlg.cb_comune.currentIndex()
-           if index_com == 0:
-              if self.index_cor == 0:
-                 QMessageBox.warning(self.iface.mainWindow(), "Informazioni","Seleziona almeno una provincia.", QMessageBox.Ok, QMessageBox.Ok)
-                 return
+           if self.test_connessione():
+              uri = QgsDataSourceURI()
+              # set host name, port, database name, username and password
+              uri.setConnection(self.DB_ADDR, "5432", self.DB_NAME, self.DB_USERNAME, self.DB_PASSWORD)
+              # set database schema, table name, geometry column and optionaly subset (WHERE clause)
+              index_com = self.dlg.cb_comune.currentIndex()
+              if index_com == 0:
+                 if self.index_cor == 0:
+                    QMessageBox.warning(self.iface.mainWindow(), "Informazioni","Seleziona almeno una provincia.", QMessageBox.Ok, QMessageBox.Ok)
+                    return
+                 else:
+                    uri.setDataSource("etere", "siti", "geom", '"idprov"=' + self.cod_prov + ' AND "idstato"!=2')
               else:
-                 uri.setDataSource("etere", "siti", "geom", '"idprov"=' + self.cod_prov + ' AND "idstato"!=2')
-           else:
            
-              cod_com = str(self.tupla_comuni[index_com-1][0])
-              uri.setDataSource("etere", "siti", "geom", '"idcomune"=' + cod_com + ' AND "idstato"!=2')
-           vlayer = QgsVectorLayer(uri.uri(), "Siti", "postgres")
+                 cod_com = str(self.tupla_comuni[index_com-1][0])
+                 uri.setDataSource("etere", "siti", "geom", '"idcomune"=' + cod_com + ' AND "idstato"!=2')
+              vlayer = QgsVectorLayer(uri.uri(), "Siti", "postgres")
 
-           #QgsMapLayerRegistry.instance().addMapLayer(vlayer)
+              #QgsMapLayerRegistry.instance().addMapLayer(vlayer)
 
-           self.scrivi_siti_shp(vlayer)
-           del vlayer
+              self.scrivi_siti_shp(vlayer)
+              del vlayer
            self.clearProgBar()
 
     def exec_modified(self):
@@ -181,7 +190,7 @@ class CaricaSiti:
         self.dlg.cb_comune.insertItems(0,lista_comuni)
     def connetti_db(self):
         try:
-           self.con = psycopg2.connect("host=arjuna.arpa.veneto.it dbname=etere user=etere password=etere2014 connect_timeout=8")
+           self.con = psycopg2.connect("host="+self.DB_ADDR+" dbname="+self.DB_NAME+" user="+self.DB_USERNAME+" password="+self.DB_PASSWORD+" connect_timeout=8")
         except:
            QMessageBox.warning(self.iface.mainWindow(), "Problemi di connessione","Errore di connessione con il Data Base Etere", QMessageBox.Ok, QMessageBox.Ok)
            return False
@@ -372,21 +381,36 @@ class CaricaSiti:
        self.newProgBar("Scarico dal Database Etere i siti nel raggio di " + Distanza + " metri",0)
        QgsMapLayerRegistry.instance().removeMapLayer(jLay.id())
        del jLay
-       uri = QgsDataSourceURI()
-       # set host name, port, database name, username and password
-       uri.setConnection("arjuna.arpa.veneto.it", "5432", "etere", "etere", "etere2014")
-       #laRiga = "geom && 'BOX3D(" + str(x-5000) +" "+ str(y-5000) +","+ str(x+5000) +" "+  str(y+5000) + ")'::box3d"
-       laRiga = "ST_Distance(geom,ST_GeomFromText('POINT(" + str(x) + " " + str(y) + ")',3003)) < " + Distanza + ' AND "idstato"!=2'
+       if self.test_connessione():
+          uri = QgsDataSourceURI()
+          # set host name, port, database name, username and password
+          uri.setConnection(self.DB_ADDR, "5432", self.DB_NAME, self.DB_USERNAME, self.DB_PASSWORD)
+          #laRiga = "geom && 'BOX3D(" + str(x-5000) +" "+ str(y-5000) +","+ str(x+5000) +" "+  str(y+5000) + ")'::box3d"
+          laRiga = "ST_Distance(geom,ST_GeomFromText('POINT(" + str(x) + " " + str(y) + ")',3003)) < " + Distanza + ' AND "idstato"!=2'
 
-       uri.setDataSource("etere", "siti", "geom", laRiga)
-       vlayerD = QgsVectorLayer(uri.uri(), "Siti", "postgres")
-       #QgsMapLayerRegistry.instance().addMapLayer(vlayerD)
-       self.scrivi_siti_shp(vlayerD)
-       del vlayerD
+          uri.setDataSource("etere", "siti", "geom", laRiga)
+
+          vlayerD = QgsVectorLayer(uri.uri(), "Siti", "postgres")
+          #QgsMapLayerRegistry.instance().addMapLayer(vlayerD)
+          self.scrivi_siti_shp(vlayerD)
+          del vlayerD
        self.clearProgBar()
+    def test_connessione(self):
+        try:
+           comd = "host="+self.DB_ADDR+" dbname="+self.DB_NAME+" user="+self.DB_USERNAME
+           comd = comd + " password="+self.DB_PASSWORD+" connect_timeout=8"
+           connessione = psycopg2.connect(comd)
+        except:
+           QMessageBox.warning(self.dlg, "Problemi di connessione","Errore di connessione con il Data Base Etere", QMessageBox.Ok, QMessageBox.Ok)
+           return False
+        connessione.close()
+        return True
+    def updateGlVariable(self):
+       setting = QSettings()
+       self.DB_ADDR = setting.value("configurazione/DB_ADDR", "")
+       self.DB_NAME = setting.value("configurazione/DB_NAME", "")
+       self.DB_USERNAME = setting.value("configurazione/DB_USERNAME", "")
+       self.DB_PASSWORD = setting.value("configurazione/DB_PASSWORD", "")
 
 
 
-
-#
-#

@@ -55,6 +55,8 @@ class areadilavoro:
 
         # Create the dialog (after translation) and keep reference
         self.dlg = areadilavoroDialog()
+        self.fileGlobDTM = ""
+        self.updateGlVariable()
 
     def initGui(self):
         # Create action that will start plugin configuration
@@ -67,7 +69,7 @@ class areadilavoro:
         # Add toolbar button and menu item
         self.iface.addToolBarIcon(self.action)
         self.iface.addPluginToMenu(u"&NirGis", self.action)
-        self.fileGlobDTM = "/home/ben/DTM_BL.tiff"
+        #
 
     def unload(self):
         # Remove the plugin menu item and icon
@@ -76,6 +78,7 @@ class areadilavoro:
 
     # run method that performs all the real work
     def run(self):
+        self.updateGlVariable()
         # Controllo se è stato salvato un progetto per avere disposizione la cartella di destinazione dei files
         if len(QgsProject.instance().fileName()) == 0:
            QMessageBox.warning(self.iface.mainWindow(), "Informazioni","Prima di definire l'area di lavoro apri un progetto\n oppure salva un nuovo progetto\n in una cartella di lavoro.", QMessageBox.Ok, QMessageBox.Ok)
@@ -186,19 +189,38 @@ class areadilavoro:
               xcount = int((xmax - xmin)/pixelWidth)+1
               ycount = int((ymax - ymin)/pixelWidth)+1
 
+              # Controllo che l'intervallo calcolato non esca dai limiti del raster originale ed
+              # eventualmente vengono ridefiniti i limiti
+              if xoff < 0:
+                 xcount = xcount + xoff
+                 xoff = 0
+              if xoff > cols -1:
+                 xoff = cols -1
+                 xcount = 0
+              if yoff < 0:
+                 ycount = ycount + yoff
+                 yoff = 0
+              if yoff > rows -1:
+                 yoff = rows -1
+                 ycount = 0
+              if xoff + xcount > cols -1:
+                 xcount = cols -1 - xoff
+              if yoff + ycount > rows -1:
+                 ycount = rows -1 - yoff
+              if xoff + xcount < 0:
+                 xcount = 0
+              if yoff + ycount < 0:
+                 ycount = 0
+
+              # se non ci sono dati da estrarre ycount e xcount uguali a zero uscita dalla funzione
+              if xcount == 0 or ycount == 0 :
+                 return
+
+
               # ridefinizione delle coordinate del punto di origine della parte di raster
-              # estratta per farein modo chesi sovrapponga esattamente all'originale  nuovo  raster 
+              # estratta per fare in modo che si sovrapponga esattamente all'originale 
               redef_xmin = xoff * pixelWidth + xOrigin
               redef_ymax = yOrigin - yoff * pixelWidth  
-
-              #Qui Scrivere la redifinizione dell'area di estrazione del raster nel caso in cui
-              #la selezione sia esterna all'area del raster: deve essere controllato e eventualmente ridefinito:
-              # - redef_xmin
-              # - redef_ymax
-              # - xoff
-              # - yoff
-              # - xcount
-              # - ycount
 
               # estrazione dal raster della matrice di valori di interesse
               myband = inDTM.GetRasterBand(1)
@@ -246,4 +268,7 @@ class areadilavoro:
               #   shutil.copyfile(filesrcqmla,fileqmla)
               #rlayer.loadNamedStyle(fileqmla)
               QgsMapLayerRegistry.instance().addMapLayer(rlayer)
+    def updateGlVariable(self):
+       setting = QSettings()
+       self.fileGlobDTM= setting.value("configurazione/FILE_DTM", "")
 
