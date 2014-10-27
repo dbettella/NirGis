@@ -1,2 +1,2 @@
-NirGis
+NirGIS
 ======
