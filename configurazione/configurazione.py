@@ -91,6 +91,7 @@ class configurazione:
       self.dlg.DB_USERNAME.setText(self.cfg.cercaOpzione("DB_USERNAME"))
       self.dlg.DB_PASSWORD.setText(self.cfg.cercaOpzione("DB_PASSWORD"))
       self.dlg.FILE_DTM.setText(self.cfg.cercaOpzione("FILE_DTM"))
+      self.dlg.SAVE_PRG_BEFORE_DB_CONN.setChecked(self.cfg.cercaOpzione("SAVE_PRG_BEFORE_DB_CONN"))
 
     def scriviOpzioni(self):
        self.cfg.impostaOpzione("DB_ADDR",self.dlg.DB_ADDR.text())
@@ -98,6 +99,7 @@ class configurazione:
        self.cfg.impostaOpzione("DB_USERNAME",self.dlg.DB_USERNAME.text())
        self.cfg.impostaOpzione("DB_PASSWORD",self.dlg.DB_PASSWORD.text())
        self.cfg.impostaOpzione("FILE_DTM",self.dlg.FILE_DTM.text())
+       self.cfg.impostaOpzione("SAVE_PRG_BEFORE_DB_CONN",self.dlg.SAVE_PRG_BEFORE_DB_CONN.isChecked())
        self.cfg.salvaFileOpzioni()
 
     def updateGlobalVariable(self):
@@ -107,7 +109,7 @@ class configurazione:
          setting.setValue("configurazione/DB_USERNAME", self.cfg.cercaOpzione("DB_USERNAME"))
          setting.setValue("configurazione/DB_PASSWORD", self.cfg.cercaOpzione("DB_PASSWORD"))
          setting.setValue("configurazione/FILE_DTM", self.cfg.cercaOpzione("FILE_DTM"))
-
+         setting.setValue("configurazione/SAVE_PRG_BEFORE_DB_CONN", self.cfg.cercaOpzione("SAVE_PRG_BEFORE_DB_CONN"))
     def test_connetti_db(self):
         try:
            comd = "host="+self.dlg.DB_ADDR.text()+" dbname="+self.dlg.DB_NAME.text()+" user="+self.dlg.DB_USERNAME.text()

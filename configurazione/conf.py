@@ -1,5 +1,6 @@
 import os
 import datetime
+from types import *
 class config:
 
    def __init__(self,phFilePlugin):
@@ -30,9 +31,20 @@ class config:
    def cercaOpzione(self,nomeOpzione):
       for j in self.matriceOpzioni:
          if nomeOpzione == j[0]:
+            if j[1] == 'True':
+               return True
+            if j[1] == 'False':
+               return False
             return j[1]
+      if nomeOpzione == "SAVE_PRG_BEFORE_DB_CONN":
+         return True
       return ""
    def impostaOpzione(self,nomeOpzione,valore):
+      if type(valore) == BooleanType:
+         if valore :
+            valore ='True'
+         else:
+            valore ='False'
       for j in self.matriceOpzioni:
          if nomeOpzione == j[0]:
             j[1] = valore

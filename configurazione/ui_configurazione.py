@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_configurazione.ui'
 #
-# Created: Mon Oct 27 09:58:53 2014
+# Created: Wed Oct 29 11:30:26 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -78,12 +78,16 @@ class Ui_configurazione(object):
         self.label_4.setGeometry(QtCore.QRect(410, 80, 66, 17))
         self.label_4.setObjectName(_fromUtf8("label_4"))
         self.terstBtn = QtGui.QPushButton(self.tab_3)
-        self.terstBtn.setGeometry(QtCore.QRect(450, 170, 161, 27))
+        self.terstBtn.setGeometry(QtCore.QRect(450, 190, 161, 27))
         self.terstBtn.setObjectName(_fromUtf8("terstBtn"))
+        self.SAVE_PRG_BEFORE_DB_CONN = QtGui.QCheckBox(self.tab_3)
+        self.SAVE_PRG_BEFORE_DB_CONN.setGeometry(QtCore.QRect(20, 150, 481, 22))
+        self.SAVE_PRG_BEFORE_DB_CONN.setChecked(True)
+        self.SAVE_PRG_BEFORE_DB_CONN.setObjectName(_fromUtf8("SAVE_PRG_BEFORE_DB_CONN"))
         self.tabWidget.addTab(self.tab_3, _fromUtf8(""))
 
         self.retranslateUi(configurazione)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), configurazione.accept)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), configurazione.reject)
         QtCore.QMetaObject.connectSlotsByName(configurazione)
@@ -99,5 +103,6 @@ class Ui_configurazione(object):
         self.label_3.setText(_translate("configurazione", "Nome Utente", None))
         self.label_4.setText(_translate("configurazione", "Password", None))
         self.terstBtn.setText(_translate("configurazione", "Test di connessione", None))
+        self.SAVE_PRG_BEFORE_DB_CONN.setText(_translate("configurazione", "Salvare il progetto automaticamente prima di scarcare dati da Etere", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("configurazione", "Database", None))
 

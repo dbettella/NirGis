@@ -39,7 +39,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab_2">
     <attribute name="title">
@@ -190,13 +190,29 @@
      <property name="geometry">
       <rect>
        <x>450</x>
-       <y>170</y>
+       <y>190</y>
        <width>161</width>
        <height>27</height>
       </rect>
      </property>
      <property name="text">
       <string>Test di connessione</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="SAVE_PRG_BEFORE_DB_CONN">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>150</y>
+       <width>481</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Salvare il progetto automaticamente prima di scarcare dati da Etere</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </widget>
